@@ -1,0 +1,9 @@
+setup.py
+bin/qdrill
+bin/qrec
+qdrill/__init__.py
+qdrill.egg-info/PKG-INFO
+qdrill.egg-info/SOURCES.txt
+qdrill.egg-info/dependency_links.txt
+qdrill.egg-info/not-zip-safe
+qdrill.egg-info/top_level.txt

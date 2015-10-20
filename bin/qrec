@@ -1,0 +1,90 @@
+#!/usr/bin/env zsh
+
+read -d '' usage <<EOS
+Usage: qrec [OPTIONS]... [FILE]
+Quickly record list of short sounds.
+
+  -o, --output-dir    output directory
+  -a, --autoreplay    enable autoreplay after each recording
+  -n, --no-clobber    do not record if the file already exist
+  -h, --help          display this help and exit
+EOS
+
+zparseopts -D -E -- o:=output -output-dir:=output \
+                    a=autoreplay -autoreplay=autoreplay \
+                    n=noclobber -no-clobber=noclobber \
+                    h=help -help=help
+
+if [[ -n $help ]]; then
+  print $usage
+  return 0
+fi
+
+outdir=${output[2]:=./sounds}
+
+if ! [[ -d $outdir ]]; then
+  mkdir $outdir
+fi
+
+infile=$@[1]
+if ! [[ -n $infile ]]; then
+  print $usage
+  return 1
+fi
+
+print "Welcome to QRec\n"
+
+while read filename text; do
+  file="$outdir/$filename"
+
+  if [[ -n $noclobber ]] && [[ -f $file ]]; then
+    # Skip if file already exist
+  else
+    # Else record
+    printf "$filename\t$text\t[Rsq]"
+
+    while true; do
+
+      read -u1 act
+      case $act in
+        R|r|)
+          # Record
+          accept=false
+          while ! $accept; do
+            # Record in another process
+            sox -d $file >/dev/null 2>&1 & pid=$!
+            printf "recording...  [enter to stop]"
+            # Stop recording by sending SIGINT
+            read -u1; kill -2 $pid
+            print "recorded 1.23s"
+
+            # If autoreplay enabled, play and ask for acceptance
+            if [[ -n $autoreplay ]]; then
+              sox $file -d >/dev/null 2>&1
+              printf "accept ? [Ynp]"
+              read -u1 act; act=${act:-Y}
+              while true; do
+                case $act in
+                  Y|y) accept=true; break ;;
+                  N|n) break ;;
+                  P|p) sox $file -d >/dev/null 2>&1
+                       printf "accept ? [ynP]"
+                       read -u1 act; act=${act:-P} ;;
+                  *)   printf "Invalid answer [y: yes, n: no, p: play]" ;;
+                esac
+              done
+            else # If autoreplay disabled always accept
+              accept=true
+            fi
+          done
+
+          break
+          ;;
+        S|s) break ;;
+        Q|q) print "Exiting..."; exit 0 ;;
+        *) printf "Invalid answer [r: record, s: skip, q: quit]" ;;
+      esac
+
+    done
+  fi
+done <$infile
