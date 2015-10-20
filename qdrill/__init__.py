@@ -19,6 +19,10 @@ class SubstitutionDrill:
         self.units = units
         self._to_record = {}
 
+    def output_filename(self):
+        name = 'SUB-' + self.sentence(self.units[0]) + '-' + self.units[1]
+        return self.filename(name)
+
     def to_record(self):
         if not self._to_record:
             torec = set()
@@ -36,5 +40,38 @@ class SubstitutionDrill:
             durs[w] = self.duration(tmpdir + "/" + f)
         return durs
 
-    def silences(self):
-        return []
+    def file_sequence(self, tmpdir):
+        fst_u = self.units[0]
+        sec_u = self.units[1]
+        fst_s = self.sentence(fst_u)
+        sec_s = self.sentence(sec_u)
+
+        # Demo part
+        files = [
+            self.filename(fst_s),
+            'silence1.wav',
+            self.filename(sec_u),
+            'silence1.wav',
+            self.filename(sec_s),
+            'silence1.wav',
+            'beep.wav',
+            'silence1.wav',
+            self.filename(fst_s),
+            'silence1.wav',
+        ]
+
+        units = self.units[1:] + [self.units[0]]
+        for u in units:
+            s = self.sentence(u)
+            s_silence = 'silence' + str(self.durations(tmpdir)[s]) + '.wav'
+            files += [
+                self.filename(u),
+                'silence1.wav',
+                s_silence,
+                'silence1.wav',
+                self.filename(s),
+                'silence1.wav',
+            ]
+
+        return files + ['beep.wav']
+

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import sys
+import os
 import re
+import shutil
 from tempfile import mkdtemp, NamedTemporaryFile, mktemp
 import subprocess
 from argparse import ArgumentParser, FileType
@@ -9,15 +10,18 @@ from qdrill import *
 
 parser = ArgumentParser(description="Generate drill audio file for language learning")
 parser.add_argument('infile', nargs='?', type=FileType('r'), default=sys.stdin)
-parser.add_argument('-o', '--outdir', nargs='?', default='./.drill')
+parser.add_argument('-o', '--outdir', nargs='?', default='./drills')
 parser.add_argument('-t', '--type', nargs='?', choices=('sub', 'exp'),
                     required=True)
 
 args = parser.parse_args()
 
+# Prepare output directory
+if not os.path.exists(args.outdir):
+    os.makedirs(args.outdir)
+
 tmpdir = mkdtemp()
 
-torec = {}
 drills = []
 
 line = args.infile.readline()
@@ -40,8 +44,8 @@ for d in drills:
 recfile.close()
 
 # Record
-#sounddir = tmpdir + '/sounds'
-sounddir = "./sandbox/sounds"
+sounddir = tmpdir + '/sounds'
+#sounddir = "./sandbox/sounds"
 subprocess.call(['qrec', '-an', '-o', sounddir, recfile.name])
 
 # Generate silence files
@@ -59,7 +63,13 @@ subprocess.call(['sox', '-n', '-r', '44100', '-c', '2', sounddir + '/beep.wav',
 
 # Generate final audio files
 for d in drills:
-    files = d.file_sequence()
+    filenames = d.file_sequence(sounddir)
+    files = [sounddir + "/" + f for f in filenames]
+    output = args.outdir + "/" + d.output_filename()
+    cmd = ['sox'] + files + [output]
+    subprocess.call(cmd)
 
+print "removing " + tmpdir
+shutil.rmtree(tmpdir)
 
 # vim: set filetype=python:

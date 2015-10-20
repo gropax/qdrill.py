@@ -52,7 +52,7 @@ while read filename text; do
           accept=false
           while ! $accept; do
             # Record in another process
-            sox -d $file >/dev/null 2>&1 & pid=$!
+            sox -r 44100 -c 2 -d $file >/dev/null 2>&1 & pid=$!
             printf "recording...  [enter to stop]"
             # Stop recording by sending SIGINT
             read -u1; kill -2 $pid
