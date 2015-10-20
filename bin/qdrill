@@ -1,0 +1,17 @@
+import sys
+from argparse import ArgumentParser, FileType
+#from qdrill import *
+
+parser = ArgumentParser(description="Generate drill audio file for language learning")
+parser.add_argument('infile', nargs='?', type=FileType('r'), default=sys.stdin)
+parser.add_argument('-o', '--outdir', nargs='?', default='./.drill')
+parser.add_argument('-t', '--type', nargs='?', choices=('sub', 'exp'),
+                    required=True)
+
+args = parser.parse_args()
+
+line = args.infile.readline()
+while line:
+    pass
+
+# vim: set filetype=python:
