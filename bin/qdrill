@@ -1,5 +1,9 @@
+#!/usr/bin/env python
+
 import sys
-from subprocess import call
+import re
+from tempfile import mkdtemp, NamedTemporaryFile, mktemp
+import subprocess
 from argparse import ArgumentParser, FileType
 from qdrill import *
 
@@ -11,10 +15,51 @@ parser.add_argument('-t', '--type', nargs='?', choices=('sub', 'exp'),
 
 args = parser.parse_args()
 
-#line = args.infile.readline()
-#while line:
-#    pass
+tmpdir = mkdtemp()
 
-call('qrec')
+torec = {}
+drills = []
+
+line = args.infile.readline()
+while line:
+    fields = line.rstrip().split('\t')
+    m = re.search("(.*)\[(.*)\](.*)", fields[0])
+    pre, u1, post = m.group(1), m.group(2), m.group(3)
+    units = [u1] + fields[1:]
+
+    drill = SubstitutionDrill(pre, post, units)
+    drills.append(drill)
+
+    line = args.infile.readline()
+
+# Generate rec file
+recfile = open(tmpdir + "/recfile", 'w')
+for d in drills:
+    for u, f in d.to_record().items():
+        recfile.write(f + "\t" + u + "\n")
+recfile.close()
+
+# Record
+#sounddir = tmpdir + '/sounds'
+sounddir = "./sandbox/sounds"
+subprocess.call(['qrec', '-an', '-o', sounddir, recfile.name])
+
+# Generate silence files
+durs = set(dur for drill in drills
+               for _, dur in drill.durations(sounddir).items())
+durs.add(1)
+
+for d in durs:
+    fname = sounddir + '/silence' + str(d) + '.wav'
+    subprocess.call(['sox', '-n', '-r', '44100', '-c', '2', fname,
+                     'trim', '0.0', str(d) + '.0'])
+
+subprocess.call(['sox', '-n', '-r', '44100', '-c', '2', sounddir + '/beep.wav',
+                 'synth', '0.1', 'tri', '1000'])
+
+# Generate final audio files
+for d in drills:
+    files = d.file_sequence()
+
 
 # vim: set filetype=python:
