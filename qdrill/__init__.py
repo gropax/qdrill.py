@@ -1,6 +1,8 @@
 from subprocess import Popen, PIPE
 import re
 
+PAUSE = 'pause.wav'
+
 class SubstitutionDrill:
     @staticmethod
     def filename(string):
@@ -11,7 +13,7 @@ class SubstitutionDrill:
         p = Popen(["soxi", "-d", wav], stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
         m = re.search(":(\d+)\.", out)
-        return int(m.group(1)) + 1
+        return int(m.group(1))
 
     def __init__(self, pre, post, units):
         self.pre = pre
@@ -49,15 +51,15 @@ class SubstitutionDrill:
         # Demo part
         files = [
             self.filename(fst_s),
-            'silence1.wav',
+            PAUSE,
             self.filename(sec_u),
-            'silence1.wav',
+            PAUSE,
             self.filename(sec_s),
-            'silence1.wav',
+            PAUSE,
             'beep.wav',
-            'silence1.wav',
+            PAUSE,
             self.filename(fst_s),
-            'silence1.wav',
+            PAUSE,
         ]
 
         units = self.units[1:] + [self.units[0]]
@@ -66,11 +68,11 @@ class SubstitutionDrill:
             s_silence = 'silence' + str(self.durations(tmpdir)[s]) + '.wav'
             files += [
                 self.filename(u),
-                'silence1.wav',
+                PAUSE,
                 s_silence,
-                'silence1.wav',
+                PAUSE,
                 self.filename(s),
-                'silence1.wav',
+                PAUSE,
             ]
 
         return files + ['beep.wav']

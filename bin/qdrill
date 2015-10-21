@@ -45,21 +45,22 @@ recfile.close()
 
 # Record
 sounddir = tmpdir + '/sounds'
-#sounddir = "./sandbox/sounds"
 subprocess.call(['qrec', '-an', '-o', sounddir, recfile.name])
 
 # Generate silence files
 durs = set(dur for drill in drills
                for _, dur in drill.durations(sounddir).items())
-durs.add(1)
-
 for d in durs:
     fname = sounddir + '/silence' + str(d) + '.wav'
     subprocess.call(['sox', '-n', '-r', '44100', '-c', '2', fname,
                      'trim', '0.0', str(d) + '.0'])
 
+# Generate standard beep
 subprocess.call(['sox', '-n', '-r', '44100', '-c', '2', sounddir + '/beep.wav',
                  'synth', '0.1', 'tri', '1000'])
+# Generate separator silence
+subprocess.call(['sox', '-n', '-r', '44100', '-c', '2', sounddir + '/pause.wav',
+                    'trim', '0.0', '0.5'])
 
 # Generate final audio files
 for d in drills:
@@ -69,7 +70,6 @@ for d in drills:
     cmd = ['sox'] + files + [output]
     subprocess.call(cmd)
 
-print "removing " + tmpdir
 shutil.rmtree(tmpdir)
 
 # vim: set filetype=python:
