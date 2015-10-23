@@ -8,5 +8,5 @@ setup(name='qdrill',
       author_email='maximedelaudrin@gmail.com',
       license='MIT',
       packages=['qdrill'],
-      scripts=['bin/qdrill', 'bin/qrec'],
+      scripts=['bin/qdrill', 'bin/qrec', 'bin/qrec2'],
       zip_safe=False)

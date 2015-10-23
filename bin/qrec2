@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import shutil
+from tempfile import mkdtemp, NamedTemporaryFile, mktemp
+import subprocess
+from argparse import ArgumentParser, FileType
+from qdrill import *
+
+parser = ArgumentParser(description="Quickly record list of short sounds.")
+parser.add_argument('infile', nargs='?', type=FileType('r'))
+parser.add_argument('-o', '--output-dir', nargs='?', default='./qrec')
+parser.add_argument('-r', '--rec-dir', nargs='?')
+parser.add_argument('-a', '--autoreplay', action='store_true', default=False)
+parser.add_argument('-n', '--no-clobber', action='store_true', default=False)
+parser.add_argument('-t', '--type', nargs='?', choices=('list', 'sub'),
+                    default='list')
+
+args = parser.parse_args()
+
+# Prepare output directory
+if not os.path.exists(args.output_dir):
+    os.makedirs(args.output_dir)
+
+tmpdirs = []
+# Prepare recordings directory
+if args.rec_dir:
+    recdir = args.rec_dir
+else:
+    recdir = mkdtemp()
+    tmpdirs.append(rec_dir)
+
+config = SoundConfig(recdir=recdir, tmpdir=tmpdir)
+
+if args.drill == 'list':
+    # List recording
+    pass
+elif args.drill == 'sub':
+    parser = SubstitutionDrillParser(config, infile)
+    try:
+        drills = parser.parse()
+    except ParseError as e:
+        sys.stderr.write(e.strerror)
+        exit(1)
+    # SubstitutionDrill
+    pass
+else:
+    pass
+
+
+# Remove tmp dirs
+for d in tmpdirs:
+    shutil.rmtree(d)
+
+exit(0)
+
+# vim: set filetype=python:

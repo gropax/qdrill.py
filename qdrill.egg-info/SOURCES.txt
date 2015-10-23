@@ -1,7 +1,17 @@
 setup.py
 bin/qdrill
 bin/qrec
+bin/qrec2
 qdrill/__init__.py
+qdrill/beep.py
+qdrill/drill.py
+qdrill/drill_parser.py
+qdrill/recording.py
+qdrill/silence.py
+qdrill/sound.py
+qdrill/sound_concat.py
+qdrill/substitution_drill.py
+qdrill/substitution_drill_parser.py
 qdrill.egg-info/PKG-INFO
 qdrill.egg-info/SOURCES.txt
 qdrill.egg-info/dependency_links.txt
