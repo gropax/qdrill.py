@@ -19,40 +19,57 @@ parser.add_argument('-t', '--type', nargs='?', choices=('list', 'sub'),
 
 args = parser.parse_args()
 
-# Prepare output directory
+# Create out dir if not exist
 if not os.path.exists(args.output_dir):
     os.makedirs(args.output_dir)
 
-tmpdirs = []
-# Prepare recordings directory
+tmpdirs = [mkdtemp()]
+
+# Use given rec dir or use tmp
 if args.rec_dir:
     recdir = args.rec_dir
 else:
     recdir = mkdtemp()
     tmpdirs.append(rec_dir)
 
-config = SoundConfig(recdir=recdir, tmpdir=tmpdir)
+config = SoundConfig(recdir=recdir,
+                     tmpdir=tmpdir,
+                     autoreplay=args.autoreplay)
 
-if args.drill == 'list':
-    # List recording
-    pass
-elif args.drill == 'sub':
-    parser = SubstitutionDrillParser(config, infile)
-    try:
-        drills = parser.parse()
-    except ParseError as e:
-        sys.stderr.write(e.strerror)
-        exit(1)
-    # SubstitutionDrill
-    pass
-else:
-    pass
+PARSERS = {
+    #list: ListParser,
+    sub: SubstitutionDrill,
+}
 
+try:
+    # Parse input
+    parser = PARSERS[args.drill](config, infile)
+    drills = parser.parse()
 
-# Remove tmp dirs
+    # Collect list of unique recordings
+    recs = []
+    for d in drills:
+        for r in d.recordings:
+            if not r in recs:
+                recs.append(r)
+
+    # Record if needed
+    for rec in recs:
+        if not (args.no_clobber and rec.exist()):
+            RecordCmd(rec).execute()
+
+    # Generate final sounds
+    for d in drills:
+        d.sound().compute()
+
+except ParseError, RecordingError, SoundError as e:
+    sys.stderr.write(e.strerror)
+    exit(1)
+
+# Cleanup tmp dirs
 for d in tmpdirs:
     shutil.rmtree(d)
 
 exit(0)
 
-# vim: set filetype=python:
+# vim: set filetype=python

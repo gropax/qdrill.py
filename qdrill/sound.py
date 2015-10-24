@@ -1,5 +1,6 @@
 import os.path
-from subprocess import Popen, PIPE
+import re
+import subprocess
 
 class SoundError(Exception):
     pass
@@ -23,11 +24,11 @@ class Sound:
 
     def check_exist(self):
         if not self.exist():
-            raise SoundFileError('File does not exist')
+            raise SoundError('File does not exist')
 
-    def play(self):
+    def play(self, _subprocess=subprocess):
         self.check_exist()
-        subprocess.call('sox %s -d') % self.path()
+        _subprocess.call('sox %s -d' % self.path())
         # Fetch return val and return false if 0
         return True
 
@@ -35,10 +36,14 @@ class Sound:
         if not hasattr(self, 'duration'):
             self.check_exist()
 
-            p = Popen(["soxi", "-d", wav], stdout=PIPE, stderr=PIPE)
+            p = subprocess.Popen(["soxi", "-d", wav],
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
             out, err = p.communicate()
-
-            m = re.search(":(\d+\.\d+)", out)
-            self.duration = float(m.group(1))
+            self.duration = parse_duration(out)
 
         return self.duration
+
+    def parse_duration(self, string):
+        m = re.search(":(\d+\.\d+)", string)
+        return float(m.group(1))

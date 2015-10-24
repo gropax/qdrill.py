@@ -9,12 +9,15 @@ class Recording(Sound):
         self.text = text
         self.process = None
 
-    def start_recording(self):
+    def __hash__(self):
+        return hash(self.path())
+
+    def start(self):
         self.process = Popen('sox -r 44100 -c 2 -d %s') % self.path()
         # Handle possible errors
         return True
 
-    def stop_recording(self):
+    def stop(self):
         if self.process:
             self.process.send_signal(2)
             self.process = None
