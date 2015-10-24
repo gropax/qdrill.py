@@ -11,10 +11,13 @@ class TestSound:
     def setup(self):
         self.tmp = mkdtemp()
         config = SoundConfig(recdir=self.tmp, tmpdir=self.tmp)
-        self.sound = Sound(config, 'myfile.wav')
+        self.sound = Sound(config, 'myfile')
 
     def teardown(self):
         rmtree(self.tmp)
+
+    def test_filename(self):
+        assert_equal('myfile.wav', self.sound.filename())
 
     def test_dir(self):
         assert_equal(self.tmp, self.sound.dir())

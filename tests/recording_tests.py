@@ -12,7 +12,7 @@ class TestRecording:
         self.recdir = mkdtemp()
         tmp = "/fake"
         config = SoundConfig(recdir=self.recdir, tmpdir=tmp)
-        self.recording = Recording(config, 'au_revoir.wav', 'Au revoir')
+        self.recording = Recording(config, 'au_revoir', 'Au revoir')
 
     def teardown(self):
         rmtree(self.recdir)

@@ -29,5 +29,7 @@ class TestBeep:
         subprocess = Mock()
         self.beep.compute(subprocess)
         f = self.tmp + "/beep.wav"
-        cmd = 'sox -n -r 44100 -c 2 %s synth 0.1 tri 1000' % f
+        #cmd = 'sox -n -r 44100 -c 2 %s synth 0.1 tri 1000' % f
+        cmd = ['sox', '-n', '-r', '44100', '-c', '2', f,
+               'synth', '0.1', 'tri', '1000']
         subprocess.call.assert_called_with(cmd)

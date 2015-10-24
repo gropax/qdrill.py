@@ -1,8 +1,10 @@
 import re
+import sys
+from qdrill import DrillParser, ParseError, Recording, SubstitutionDrill
+
+SENTENCE_RE = re.compile("^(?P<pre>[^\[\]]*)\[(?P<word>[^\[\]]*)\](?P<post>[^\[\]\n]*)")
 
 class SubstitutionDrillParser(DrillParser):
-    sentence_re = re.compile("^(?P<pre>[^\[\]]*)\[(?P<word>[^\[\]]*)\](?P<post>[^\[\]]*)")
-
     def parse(self):
         drills = []
 
@@ -18,20 +20,26 @@ class SubstitutionDrillParser(DrillParser):
                     drill_data.append(self.recordings(word))
             else:
                 if not self.is_blank(line):
-                    m = sentence_re.match(line)
+                    m = SENTENCE_RE.match(line)
                     if m:
-                        pre = m.group('pre')
-                        post = m.group('post')
+                        self.pre = m.group('pre')
+                        self.post = m.group('post')
                         word = m.group('word')
                         drill_data.append(self.recordings(word))
                     else:
-                        raise ParseError("line %i: invalid sentence %s") % i, line
+                        raise ParseError("line %i: invalid sentence %s" % (i, line))
+
+        if drill_data:
+            drill = SubstitutionDrill(self.config, drill_data)
+            drills.append(drill)
+
         return drills
 
     def recordings(self, word):
-        sent = pre + word + post
+        sent = self.pre + word + self.post
         recs = []
         for t in (word, sent):
             f = self.filename(t)
-            rec = Recording(self.config, f)
+            rec = Recording(self.config, f, t)
+            recs.append(rec)
         return tuple(recs)

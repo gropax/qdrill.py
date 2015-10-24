@@ -1,6 +1,11 @@
 import os.path
 import re
 import subprocess
+#from qdrill.silence import Silence
+#import qdrill.silence
+#from qdrill import Silence
+import qdrill
+
 
 class SoundError(Exception):
     pass
@@ -13,8 +18,11 @@ class Sound:
     def dir(self):
         return self.config.recdir
 
+    def filename(self):
+        return self.name + '.wav'
+
     def path(self):
-        return self.dir() + "/" + self.name
+        return self.dir() + "/" + self.filename()
 
     def exist(self):
         return os.path.isfile(self.path())
@@ -32,8 +40,10 @@ class Sound:
         # Fetch return val and return false if 0
         return True
 
-    def duration(self):
-        if not hasattr(self, 'duration'):
+    def duration(self, test=False):
+        if test: return 1.0
+
+        if not hasattr(self, '_duration'):
             self.check_exist()
 
             p = subprocess.Popen(["soxi", "-d", wav],
@@ -42,8 +52,11 @@ class Sound:
             out, err = p.communicate()
             self.duration = parse_duration(out)
 
-        return self.duration
+        return self._duration
 
     def parse_duration(self, string):
         m = re.search(":(\d+\.\d+)", string)
         return float(m.group(1))
+
+    def silence(self, test=False):
+        return qdrill.Silence(self.config, self.duration(test))

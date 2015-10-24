@@ -1,6 +1,8 @@
 #from subprocess import Popen
 import subprocess
 from qdrill.sound import Sound
+from qdrill.silence import Silence
+
 
 class RecordingError(Exception):
     pass
@@ -8,6 +10,7 @@ class RecordingError(Exception):
 class Recording(Sound):
     def __init__(self, config, name, text):
         super().__init__(config, name)
+        self.config = config
         self.text = text
         self.process = None
 
