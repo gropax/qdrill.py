@@ -1,4 +1,5 @@
 import subprocess
+from qdrill.sound import Sound
 
 class Silence(Sound):
     def __init__(self, config, dur):
@@ -8,9 +9,9 @@ class Silence(Sound):
     def dir(self):
         return self.config.tmpdir
 
-    def compute(self):
+    def compute(self, sp=subprocess):
         if not self.exist():
-            subprocess.call('sox -n -r 44100 -c 2 %s trim 0.0 %.1f' \
+            sp.call('sox -n -r 44100 -c 2 %s trim 0.0 %.1f' \
                 % (self.path(), self.duration))
             # Fetch return val and return false if 0
         return True

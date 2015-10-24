@@ -1,4 +1,5 @@
 import subprocess
+from qdrill.sound import Sound
 
 class Beep(Sound):
     def __init__(self, config):
@@ -7,9 +8,9 @@ class Beep(Sound):
     def dir(self):
         return self.config.tmpdir
 
-    def compute(self):
+    def compute(self, sp=subprocess):
         if not self.exist():
-            subprocess.call('sox -n -r 44100 -c 2 %s synth 0.1 tri 1000' \
+            sp.call('sox -n -r 44100 -c 2 %s synth 0.1 tri 1000' \
                 % self.path())
             # Fetch return val and return false if 0
         return True

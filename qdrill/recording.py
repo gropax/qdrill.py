@@ -1,4 +1,6 @@
-from subprocess import Popen
+#from subprocess import Popen
+import subprocess
+from qdrill.sound import Sound
 
 class RecordingError(Exception):
     pass
@@ -12,8 +14,8 @@ class Recording(Sound):
     def __hash__(self):
         return hash(self.path())
 
-    def start(self):
-        self.process = Popen('sox -r 44100 -c 2 -d %s') % self.path()
+    def start(self, sp=subprocess):
+        self.process = sp.Popen('sox -r 44100 -c 2 -d %s' % self.path())
         # Handle possible errors
         return True
 
