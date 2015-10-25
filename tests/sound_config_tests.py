@@ -1,5 +1,5 @@
 from nose.tools import *
-from qdrill.sound_config import SoundConfig
+from qdrill import SoundConfig
 
 class TestSoundConfig:
     def setup(self):

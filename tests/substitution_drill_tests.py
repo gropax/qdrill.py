@@ -3,10 +3,7 @@ from unittest.mock import Mock
 from os import mknod
 from shutil import rmtree
 from tempfile import mkdtemp
-from qdrill.sound_config import SoundConfig
-from qdrill.substitution_drill import SubstitutionDrill
-from qdrill.sound import Sound
-from qdrill.recording import Recording
+from qdrill import SoundConfig, SubstitutionDrill, Sound, Recording
 
 
 class TestSubstitutionDrill:

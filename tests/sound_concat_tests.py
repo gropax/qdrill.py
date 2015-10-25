@@ -3,13 +3,7 @@ from unittest.mock import Mock
 from os import mknod
 from shutil import rmtree
 from tempfile import mkdtemp
-
-from qdrill.sound_config import SoundConfig
-from qdrill.sound_concat import SoundConcat
-from qdrill.beep import Beep
-from qdrill.silence import Silence
-from qdrill.recording import Recording
-from qdrill.sound_concat import SoundConcat
+from qdrill import SoundConfig, SoundConcat, Beep, Silence, Recording
 
 
 class TestSoundConcat:

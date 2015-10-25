@@ -14,7 +14,7 @@ parser.add_argument('-o', '--outdir', nargs='?', default='./qrec')
 parser.add_argument('-r', '--recdir', nargs='?')
 parser.add_argument('-a', '--autoreplay', action='store_true', default=False)
 parser.add_argument('-n', '--no-clobber', action='store_true', default=False)
-parser.add_argument('-t', '--type', nargs='?', choices=('list', 'sub'),
+parser.add_argument('-t', '--type', nargs='?', choices=('list', 'sub', 'trans'),
                     default='list')
 
 args = parser.parse_args()

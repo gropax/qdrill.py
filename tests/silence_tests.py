@@ -3,8 +3,7 @@ from unittest.mock import Mock
 from os import mknod
 from shutil import rmtree
 from tempfile import mkdtemp
-from qdrill.sound_config import SoundConfig
-from qdrill.silence import Silence
+from qdrill import SoundConfig, Silence
 
 
 class TestSilence:
