@@ -32,8 +32,7 @@ class TestSilence:
         subprocess = Mock()
         self.silence.compute(subprocess)
         f = self.tmp + "/silence2.3.wav"
-        #cmd = "sox -n -r 44100 -c 2 %s trim 0.0 2.3" % f
         cmd = ['sox', '-n', '-r', '44100',
                '-c', '2', f,
-               'trim', '0.0 2.3']
+               'trim', '0.0', '2.3']
         subprocess.call.assert_called_with(cmd)

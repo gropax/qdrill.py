@@ -12,10 +12,8 @@ class Silence(Sound):
 
     def compute(self, sp=subprocess):
         if not self.exist():
-            #sp.call('sox -n -r 44100 -c 2 %s trim 0.0 %.1f' \
-            #    % (self.path(), self.duration))
             sp.call(['sox', '-n', '-r', '44100',
                      '-c', '2', self.path(),
-                     'trim', '0.0 %.1f' % self.duration])
+                     'trim', '0.0', '%.1f' % self.duration])
             # Fetch return val and return false if 0
         return True

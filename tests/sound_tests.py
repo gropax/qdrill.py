@@ -44,9 +44,20 @@ class TestSound:
         # File exists
         mknod(self.sound.path())
         subprocess = Mock()
+        f = self.tmp + '/myfile.wav'
+        cmd = ['sox', f, '-d']
         self.sound.play(subprocess)
-        cmd = "sox %s/myfile.wav -d" % self.tmp
-        subprocess.call.assert_called_with(cmd)
+        subprocess.call.assert_called_with(cmd, stdout=subprocess.DEVNULL,
+                                                stderr=subprocess.DEVNULL)
+
+    def test_duration(self):
+        mknod(self.sound.path())
+        subprocess = Mock()
+        self.sound.duration(subprocess, test=True)
+        f = self.tmp + '/myfile.wav'
+        cmd = ['soxi', '-d', f]
+        subprocess.Popen.assert_called_with(cmd, stdout=subprocess.PIPE,
+                                                 stderr=subprocess.PIPE)
 
     def test_parse_duration(self):
         s = "01:21:03.23"

@@ -26,7 +26,14 @@ class TestSubstitutionDrill:
         rmtree(self.recdir, self.tmp)
 
     def test_filename(self):
-        assert_equal('sub-je_manges-dors.wav', self.drill.filename)
+        assert_equal('sub-je_manges-dors', self.drill.filename)
+
+    def test_recordings(self):
+        recs = self.drill.recordings()
+        assert_equal(recs[0].text, 'manges')
+        assert_equal(recs[1].text, 'je manges')
+        assert_equal(recs[2].text, 'dors')
+        assert_equal(recs[3].text, 'je dors')
 
     def test_sound(self):
-        assert_is_instance(self.drill.sound(True), Sound)
+        assert_is_instance(self.drill.sound(test=True), Sound)

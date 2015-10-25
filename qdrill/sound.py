@@ -1,4 +1,5 @@
 import os.path
+import sys
 import re
 import subprocess
 #from qdrill.silence import Silence
@@ -30,27 +31,30 @@ class Sound:
     def compute(self):
         return self.exist()
 
-    def check_exist(self):
+    def check_exist(self, **opts):
+        if opts.get('test', False): return True
         if not self.exist():
             raise SoundError('File does not exist')
 
-    def play(self, _subprocess=subprocess):
+    def play(self, sp=subprocess):
         self.check_exist()
-        _subprocess.call('sox %s -d' % self.path())
+        sp.call(['sox', self.path(), '-d'], stdout=sp.DEVNULL,
+                                            stderr=sp.DEVNULL)
         # Fetch return val and return false if 0
         return True
 
-    def duration(self, test=False):
-        if test: return 1.0
-
+    def duration(self, sp=subprocess, **opts):
         if not hasattr(self, '_duration'):
-            self.check_exist()
+            self.check_exist(**opts)
+            p = sp.Popen(["soxi", "-d", self.path()],
+                         stdout=sp.PIPE,
+                         stderr=sp.PIPE)
+            if opts.get('test', True):
+                out, err = b"00:00:02.34", None
+            else:
+                out, err = p.communicate()
 
-            p = subprocess.Popen(["soxi", "-d", wav],
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-            out, err = p.communicate()
-            self.duration = parse_duration(out)
+            self._duration = self.parse_duration(out.decode('ascii'))
 
         return self._duration
 
@@ -58,5 +62,5 @@ class Sound:
         m = re.search(":(\d+\.\d+)", string)
         return float(m.group(1))
 
-    def silence(self, test=False):
-        return qdrill.Silence(self.config, self.duration(test))
+    def silence(self, **opts):
+        return qdrill.Silence(self.config, self.duration(**opts))

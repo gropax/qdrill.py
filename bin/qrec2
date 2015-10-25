@@ -10,8 +10,8 @@ from qdrill import *
 
 parser = ArgumentParser(description="Quickly record list of short sounds.")
 parser.add_argument('infile', nargs='?', type=FileType('r'))
-parser.add_argument('-o', '--output-dir', nargs='?', default='./qrec')
-parser.add_argument('-r', '--rec-dir', nargs='?')
+parser.add_argument('-o', '--outdir', nargs='?', default='./qrec')
+parser.add_argument('-r', '--recdir', nargs='?')
 parser.add_argument('-a', '--autoreplay', action='store_true', default=False)
 parser.add_argument('-n', '--no-clobber', action='store_true', default=False)
 parser.add_argument('-t', '--type', nargs='?', choices=('list', 'sub'),
@@ -20,49 +20,48 @@ parser.add_argument('-t', '--type', nargs='?', choices=('list', 'sub'),
 args = parser.parse_args()
 
 # Create out dir if not exist
-if not os.path.exists(args.output_dir):
-    os.makedirs(args.output_dir)
+if not os.path.exists(args.outdir):
+    os.makedirs(args.outdir)
 
-tmpdirs = [mkdtemp()]
+tmpdir = mkdtemp()
+tmpdirs = [tmpdir]
 
 # Use given rec dir or use tmp
-if args.rec_dir:
-    recdir = args.rec_dir
+if args.recdir:
+    recdir = args.recdir
+    if not os.path.exists(recdir):
+        os.makedirs(recdir)
 else:
     recdir = mkdtemp()
-    tmpdirs.append(rec_dir)
+    tmpdirs.append(recdir)
 
-config = SoundConfig(recdir=recdir,
+config = SoundConfig(outdir=args.outdir,
+                     recdir=recdir,
                      tmpdir=tmpdir,
                      autoreplay=args.autoreplay)
 
-PARSERS = {
-    #list: ListParser,
-    sub: SubstitutionDrill,
-}
-
 try:
     # Parse input
-    parser = PARSERS[args.drill](config, infile)
+    parser = PARSERS[args.type](config, args.infile)
     drills = parser.parse()
 
-    # Collect list of unique recordings
+    # Collect list of recordings without duplicates
     recs = []
     for d in drills:
-        for r in d.recordings:
+        for r in d.recordings():
             if not r in recs:
                 recs.append(r)
 
     # Record if needed
     for rec in recs:
         if not (args.no_clobber and rec.exist()):
-            RecordCmd(rec).execute()
+            RecordCmd(config, rec).execute()
 
     # Generate final sounds
     for d in drills:
         d.sound().compute()
 
-except ParseError, RecordingError, SoundError as e:
+except (ParseError, RecordingError, SoundError) as e:
     sys.stderr.write(e.strerror)
     exit(1)
 

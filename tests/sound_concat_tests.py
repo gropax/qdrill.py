@@ -14,8 +14,11 @@ from qdrill.sound_concat import SoundConcat
 
 class TestSoundConcat:
     def setup(self):
+        self.outdir = mkdtemp()
         self.recdir, self.tmp = mkdtemp(), mkdtemp()
-        config = SoundConfig(recdir=self.recdir, tmpdir=self.tmp)
+        config = SoundConfig(recdir=self.recdir,
+                             tmpdir=self.tmp,
+                             outdir=self.outdir)
         self.sounds = [
             Recording(config, 'recording', 'Recording'),
             Silence(config, 2),
@@ -24,13 +27,13 @@ class TestSoundConcat:
         self.sound = SoundConcat(config, 'drill', self.sounds)
 
     def teardown(self):
-        rmtree(self.recdir, self.tmp)
+        rmtree(self.recdir, self.tmp, self.outdir)
 
     def test_dir(self):
-        assert_equal(self.recdir, self.sound.dir())
+        assert_equal(self.outdir, self.sound.dir())
 
     def test_path(self):
-        path = self.recdir + "/drill.wav"
+        path = self.outdir + "/drill.wav"
         assert_equal(path, self.sound.path())
 
     def test_compute(self):

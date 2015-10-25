@@ -7,6 +7,9 @@ class SoundConcat(Sound):
         super().__init__(config, name)
         self.sounds = sounds
 
+    def dir(self):
+        return self.config.outdir
+
     def compute(self, sp=subprocess):
         if all(s.compute() for s in self.sounds):
             sounds = [s.path() for s in self.sounds]

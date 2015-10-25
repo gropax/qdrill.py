@@ -13,7 +13,7 @@ class DrillParser:
 
     @staticmethod
     def filename(text):
-        return text.replace(' ', '_') + '.wav'
+        return text.replace(' ', '_').replace('.', '')
 
     def __init__(self, config, stream):
         self.config = config

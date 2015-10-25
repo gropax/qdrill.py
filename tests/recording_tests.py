@@ -27,15 +27,15 @@ class TestRecording:
     def test_text(self):
         assert_equal("Au revoir", self.recording.text)
 
-    def test_play_stop(self):
+    def test_start_stop(self):
         f = self.recdir + "/au_revoir.wav"
-        cmd = 'sox -r 44100 -c 2 -d %s' % f
+        cmd = ['sox', '-r', '44100', '-c', '2', '-d', f]
         subprocess = Mock()
 
         # Start
         self.recording.start(subprocess)
-        subprocess.Popen.assert_called_with(cmd)
-
+        subprocess.Popen.assert_called_with(cmd, stdout=subprocess.DEVNULL,
+                                                 stderr=subprocess.DEVNULL)
         # Stop
         ps = self.recording.process = Mock()
         self.recording.stop()

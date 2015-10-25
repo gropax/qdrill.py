@@ -1,3 +1,5 @@
+import sys
+
 class RecordCmd:
     def __init__(self, config, rec):
         self.config = config
@@ -6,18 +8,18 @@ class RecordCmd:
     def record(self):
         self.recording.start()
         sys.stdout.write("recording... [enter to stop] ")
-        raw_input()
+        input()
         self.recording.stop()
-        print "recorded %.2fs" % self.recording.duration()
+        sys.stdout.write("recorded %.2fs\n" % self.recording.duration())
 
     def execute(self):
-        sys.stdout.write("\033[92m%s\033[0m\t" % self.recordings.text)
+        sys.stdout.write("\033[92m%s\033[0m\t" % self.recording.text)
 
         sys.stdout.write("  [Rsq] ")
         while True:
-            ans = raw_input() or "r"
+            ans = input() or "r"
             if ans == 'q':
-                print "Exiting..."
+                sys.stdout.write("Exiting...")
                 exit(2)
             elif ans == 's':
                 break
@@ -31,7 +33,7 @@ class RecordCmd:
                         default = 'y'
                         sys.stdout.write("accept ? [Ynp] ")
                         while True:
-                            ans = raw_input() or default
+                            ans = input() or default
                             if ans == 'y':
                                 accepted = True
                                 break
@@ -42,9 +44,9 @@ class RecordCmd:
                                 default = 'p'
                                 sys.stdout.write("accept ? [ynP] ")
                             else:
-                                print "invalid answer [y: yes, n: no, p: play]"
+                                sys.stdout.write("invalid answer [y: yes, n: no, p: play]")
                     else:
                         accepted = True
                 break
             else:
-                print "Invalid answer [r: record, q: quit]"
+                sys.stdout.write("Invalid answer [r: record, q: quit]")

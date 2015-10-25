@@ -18,7 +18,11 @@ class Recording(Sound):
         return hash(self.path())
 
     def start(self, sp=subprocess):
-        self.process = sp.Popen('sox -r 44100 -c 2 -d %s' % self.path())
+        self.process = sp.Popen(['sox', '-r', '44100',
+                                        '-c', '2',
+                                        '-d', self.path()],
+                                        stdout=sp.DEVNULL,
+                                        stderr=sp.DEVNULL)
         # Handle possible errors
         return True
 
